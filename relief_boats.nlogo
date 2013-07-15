@@ -1,163 +1,505 @@
-globals [simulation-ended fraction pruning-start node-xcor node-ycor x1 y1 closest step nextTemp num start-node end-node index step-num step-max dist]
+globals [input simulation-ended sim1-ended sim2-ended sim3-ended flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 end-node1 end-node2 end-node3 end-node4 end-node5 end-node6 end-node7 end-node8 end-node9 fraction pruning-start node-xcor node-ycor y1 closest step nextTemp previous-num num start-node end-node index step-num step-max dist]
 turtles-own [energy]
 
 breed [targets target]
-breed [nodes node]
+breed [nodes1 node1]
+breed [nodes2 node2]
+breed [nodes3 node3]
 breed [boats boat]
 breed [points point]
+;breed [points2 point2]
+;breed [points3 point3]
 
-nodes-own [previous next]
+nodes1-own [previous1 next1 previous2 next2 previous3 next3]
+nodes2-own [previous1 next1 previous2 next2 previous3 next3]
+nodes3-own [previous1 next1 previous2 next2 previous3 next3]
 
 
 to setup
   clear-all
-  setup-boats
+  set input 1
+  setup-flags
+  setup-obstacles
+  setup-boats-and-nodes
   setup-targets
-  setup-nodes
+  ;setup-nodes
   reset-ticks
-  set step 3
-end
-
-to setup-boats
-  create-boats number 
-  ask boats [
-    set color blue
-    set shape "turtle"
-    set size 1
-    setxy 0 -19]
+  set step (number * 3)
 end
 
 
-to setup-nodes
-  create-nodes 1 
-  ask nodes [
-    set color red
-    set shape "circle"
-    set size 0.3
-    setxy 0 -19
-    pen-down]
-  set node-xcor [0]
-  set node-ycor [-19]
+to setup-obstacles
+  ask patches [
+    if (pxcor < 15) and (pxcor > -20) and (pycor > -5) and (pycor < 5)
+    [ set pcolor red ]
+  ]
+end
+  
+  
+to setup-boats-and-nodes
+  create-boats number
+  ifelse number = 1
+  [
+    create-nodes1 1
+  ]
+  [
+    ifelse number = 2
+    [
+      create-nodes1 1
+      create-nodes2 1
+    ]
+    [
+      create-nodes1 1
+      create-nodes2 1
+      create-nodes3 1
+    ]
+  ]
+  set index 0
+  while [index < number]
+  [  
+    ask boat index 
+    [
+      set color brown
+      set shape "turtle"
+      set size 1
+      setxy max-pxcor - random (max-pxcor * 2 + 1) max-pycor - random (max-pycor * 2 + 1)
+      while [pcolor = red] 
+      [
+        setxy max-pxcor - random (max-pxcor * 2 + 1) max-pycor - random (max-pycor * 2 + 1)
+      ]
+      set node-xcor xcor
+      set node-ycor ycor
+      ifelse index = 0 
+      [
+        ask node1 (index + 3) 
+        [
+          set color blue
+          set shape "circle"
+          set size 0.3
+          setxy node-xcor node-ycor
+          pen-down
+        ]
+      ]
+      [
+        ifelse index = 1 
+        [
+          ask node2 (index + 3)  
+          [
+            set color magenta
+            set shape "circle"
+            set size 0.3
+            setxy node-xcor node-ycor
+            pen-down
+          ]
+        ]
+        [
+          ask node3 (index + 3)  
+          [
+            set color turquoise
+            set shape "circle"
+            set size 0.3
+            setxy node-xcor node-ycor
+            pen-down
+          ]
+        ]
+      ]
+      set index index + 1
+    ]
+  ]  
 end
 
 
 to setup-targets
-  create-targets 1
-  ask targets [
-    set color green
-    set shape "target"
-    set size 1
+  create-targets number
+  set index 0
+  while [index < number]  
+  [
+    ask target (index + 6) 
+    [
+      set color white
+      set shape "target"
+      set size 1
+      setxy max-pxcor - random (max-pxcor * 2 + 1) max-pycor - random (max-pycor * 2 + 1)
+      while [pcolor = red] 
+      [
+        setxy max-pxcor - random (max-pxcor * 2 + 1) max-pycor - random (max-pycor * 2 + 1)
+      ]
+      set index index + 1
+    ]
   ]
-  ask targets [setxy 0 15]
 end
 
-
-to draw-obstacles
-  ask patches [
-    if (pxcor < 15) and (pxcor > -20) and (pycor > -5) and (pycor < 5)
-    [ set pcolor blue ]
-;    if (pxcor > 5) and (pycor < -5)
-;    [ set pcolor blue ]
-;    if (pxcor < -5) and (pycor > 5) and (pycor < 8)
-;    [ set pcolor blue ]
-;    if (pxcor < -3) and (pycor > -24) and (pycor < 2)
-;    [ set pcolor blue ]
-;    if (pxcor > 2) and (pycor > 3) and (pycor < 12)
-;    [ set pcolor blue ]
-    ]
+to setup-flags
+  set flag1 false
+  set flag2 false
+  set flag3 false
+  set flag4 false
+  set flag5 false
+  set flag6 false
+  set flag7 false
+  set flag8 false
+  set flag9 false
+  set sim1-ended false
+  set sim2-ended false
+  set sim3-ended false
+  set simulation-ended false
 end
 
 
 to go
-  draw-obstacles
-  check-destination-reached
-  
+  check-destination-reached  
   choose-point
   check-distances
+  if sim1-ended = true
+  [
+    set input 2
+  ]
+  if sim2-ended = true
+  [
+    set input 3
+  ]  
   ifelse simulation-ended = true
   [
-    path-pruning
+     path-pruning1
+;    path-pruning2
+;    path-pruning3
+;    path-pruning4
+;    path-pruning5
+;    path-pruning6
+;    path-pruning7
+;    path-pruning8
+;    path-pruning9
     stop
   ]
   [
     tick
-   set step step + 2
+    set step step + 2
   ]
 end
 
 to check-destination-reached
-  ask targets [
-    ask nodes in-radius 1.5 [
-      set num step - 1
-      ask node num [set nextTemp who] 
-      while [num > 1]
-      [ ask node num [
-          set next nextTemp
-          set color green
-          set nextTemp num
-          set num previous
+  ifelse input = 1
+  [ 
+    if flag1 = false 
+    [
+    ask target (number * 2) 
+    [
+      
+      ask nodes1 in-radius 1.5 
+      [
+        set num step - 1
+        set end-node1 num
+        ask node1 num [set nextTemp who] 
+        while [num > 1]
+        [ 
+          ask node1 num 
+          [
+            set next1 nextTemp
+            ;set color cyan
+            set nextTemp num
+            set num previous1
           ]
+        ]
+        set flag1 true
       ]
-      ;set pruning-start true
-      ; move-boat
-      set simulation-ended true
+    ]
+    ]
+    if flag2 = false
+    [
+    ask target (number * 2 + 1) 
+    [
+      ask nodes1 in-radius 1.5 
+      [
+        set num step - 1
+        ask node1 num [set nextTemp who] 
+        while [num > 1]
+        [ 
+          ask node1 num 
+          [
+            set next2 nextTemp
+            ;set color cyan
+            set nextTemp num
+            set num previous2
+          ]
+        ]
+        set flag2 true
+      ]
+    ]
+    ]
+    if flag3 = false
+    [
+    ask target (number * 2 + 2) 
+    [
+      ask nodes1 in-radius 1.5 
+      [
+        set num step - 1
+        ask node1 num [set nextTemp who] 
+        while [num > 1]
+        [ 
+          ask node1 num 
+          [
+            set next3 nextTemp
+            ;set color cyan
+            set nextTemp num
+            set num previous3
+          ]
+        ]
+        set flag3 true
+      ]
     ]
   ]
-end
-  
-to path-pruning
-  ;if pruning-start = true
-  ;[
-    ask nodes [ pen-up]
-    ask nodes [ if color = red
+    if flag1 = true
+    [
+      if flag2 = true
       [
-        die
+        if flag3 = true
+        [
+          set sim1-ended true
+          ;set flag1 false
+          ;set flag2 false
+          ;set flag3 false
+        ]
+      ]
+    ] 
+  ]
+  [
+    ifelse input = 2
+    [
+      if flag4 = false 
+      [
+      ask target (number * 2) 
+      [
+        ask nodes2 in-radius 1.5 
+        [
+          set num step - 1
+          ask node2 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node2 num 
+            [
+              set next1 nextTemp
+              ;set color pink
+              set nextTemp num
+              set num previous1
+            ]
+          ]
+          set flag4 true
+        ]
+      ]
+      ]
+      if flag5 = false
+      [
+      ask target (number * 2 + 1) 
+      [
+        ask nodes2 in-radius 1.5 
+        [
+          set num step - 1
+          ask node2 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node2 num 
+            [
+              set next2 nextTemp
+              ;set color pink
+              set nextTemp num
+              set num previous2
+            ]
+          ]
+          set flag5 true
+        ]
+      ]
+      ]
+      if flag6 = false
+      [
+      ask target (number * 2 + 2) 
+      [
+        ask nodes2 in-radius 1.5 
+        [
+          set num step - 1
+          ask node2 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node2 num 
+            [
+              set next3 nextTemp
+              ;set color pink
+              set nextTemp num
+              set num previous3
+            ]
+          ]
+          set flag6 true
+        ]
       ]
     ]
-    ask nodes [ set color red]
-    set start-node  2 
+      if flag4 = true
+      [
+        if flag5 = true
+        [
+          if flag6 = true
+          [
+            set sim2-ended true
+            ;set flag1 false
+            ;set flag2 false
+            ;set flag3 false
+          ]
+        ]
+      ] 
+    ]
+    [
+      if flag7 = false
+      [
+      ask target (number * 2) 
+      [
+        ask nodes3 in-radius 1.5 
+        [
+          set num step - 1
+          ask node3 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node3 num 
+            [
+              set next1 nextTemp
+              ;set color green
+              set nextTemp num
+              set num previous1
+            ]
+          ]
+          set flag7 true
+        ]
+      ]
+      ]
+      if flag8 = false
+      [
+      ask target (number * 2 + 1) 
+      [
+        ask nodes3 in-radius 1.5 
+        [
+          set num step - 1
+          ask node3 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node3 num 
+            [
+              set next2 nextTemp
+              ;set color green
+              set nextTemp num
+              set num previous2
+            ]
+          ]
+          set flag8 true
+        ]
+      ]
+      ]
+      if flag9 = false
+      [
+      ask target (number * 2 + 2) 
+      [
+        ask nodes3 in-radius 1.5 
+        [
+          set num step - 1
+          ask node3 num [set nextTemp who] 
+          while [num > 1]
+          [ 
+            ask node3 num 
+            [
+              set next3 nextTemp
+              ;set color green
+              set nextTemp num
+              set num previous3
+            ]
+          ]
+          set flag9 true
+        ]
+      ]
+    ]
+      if flag7 = true
+      [
+        if flag8 = true
+        [
+          if flag9 = true
+          [
+            set sim3-ended true
+            ;set flag1 false
+            ;set flag2 false
+            ;set flag3 false
+          ]
+        ]
+      ] 
+    ]
+  ]
+  if sim1-ended = true
+  [
+    if sim2-ended = true
+    [
+      if sim3-ended = true
+      [
+        set simulation-ended true
+        ;set sim1-ended false
+        ;set sim2-ended false
+        ;set sim3-ended false
+      ]
+    ]
+  ]  
+    
+      ;set pruning-start true
+      ; move-boat
+      ;set simulation-ended true
+
+end
+  
+to path-pruning1
+;  clear-all
+  ask nodes1 [ pen-up]
+  clear-drawing
+;    ask nodes1 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 3 
     set step-num 0
     set step-max 1 
-    while [end-node < step - 1][ 
-      ask node start-node [
-        set end-node next
+    while [end-node < (end-node1 + 1)][ 
+      ask node1 start-node [
+        set end-node next1
         while [step-num < step-max]
         [
-          ask node end-node [set end-node next]
+          ask node1 end-node [set end-node next1]
           set step-num step-num + 1
         ]
         set step-num 0 
       ]
-      ask node start-node[
+      show end-node
+      ask node1 start-node[
         hatch 1 [
-          face node end-node
+          face node1 end-node
           set index 0
-          ask node start-node [ set dist distance node end-node]
+          ask node1 start-node [ set dist distance node1 end-node]
           while [index < dist - 1]
           [
             forward 1
             set index index + 1 
-            if pcolor = blue [
-              ask node end-node [ set end-node previous]
-              ask node end-node [
-                set previous start-node
-                set color green]
-              ask node start-node [
-              set next end-node
-              set color green
+            if pcolor = red [
+              ask node1 end-node [ set end-node previous1]
+              ask node1 end-node [
+                set previous1 start-node
+                set color cyan]
+              ask node1 start-node [
+              set next1 end-node
+              set color cyan
                hatch 1 [
                  pen-down
-                 face node end-node
-                 set dist distance node end-node
+                 face node1 end-node
+                 set dist distance node1 end-node
                  forward dist
                  pen-up
                  die
                ]
              ]
-             ask node end-node [set start-node end-node]
+             ask node1 end-node [set start-node end-node]
              set step-max 0
              set index dist        
-             ;continue from line while [end-node < step - 1]
            ]
           
           ]
@@ -166,21 +508,21 @@ to path-pruning
           ]
       ]
     ]     
-    ask node start-node [ 
-      set next end-node
-      set color green
+    ask node1 start-node [ 
+      set next1 end-node
+      set color cyan
       hatch 1 [
         pen-down
-        face node end-node
-        set dist distance node end-node
+        face node1 end-node
+        set dist distance node1 end-node
         forward dist
         pen-up
         die
       ]
     ]
-    ask node end-node [
-      set previous start-node
-      set color green
+    ask node1 end-node [
+      set previous1 start-node
+      set color cyan
       ]
   ;]
 
@@ -188,45 +530,155 @@ end
 
 to choose-point
   create-points 1
-  ask points [setxy 20 - random 41 20 - random 41]
- 
-      set x1 [ xcor ] of  points                   ;;;; my addition also added them in the global
-      set y1 [ ycor ] of  points                  ;;;; my addition
+  ask points [setxy max-pxcor - random (max-pxcor * 2 + 1) max-pycor - random (max-pycor * 2 + 1)] 
+;      set x1 [ xcor ] of  points                   ;;;; my addition also added them in the global
+ ;     set y1 [ ycor ] of  points                  ;;;; my addition
 end
 
 to check-distances
-
-  ask points[
-  set closest (min-one-of nodes [distance myself])
-  ]
-  
-  ask closest [
-    hatch 1 [
-      face point step
-      forward 1
-      set fraction 1
-      while [ fraction > 1 / 16 ] [
-          if pcolor = blue [
-          face closest
-          forward fraction / 2
-          ifelse pcolor = blue 
-          [
+  ifelse input = 1
+  [
+    ask points
+    [
+      set closest (min-one-of nodes1 [distance myself])
+    ]
+    ask closest 
+    [
+      hatch 1 [
+        face point step
+        forward 1
+        set fraction 1
+        while [ fraction > 1 / 16 ] [
+            if pcolor = red [
             face closest
             forward fraction / 2
+            ifelse pcolor = red 
+            [
+              face closest
+              forward fraction / 2
+            ]
+            [
+              face point step
+              forward fraction / 4
+            ]
           ]
-          [
-            face point step
-            forward fraction / 4
-          ]
+          set fraction fraction / 2 
         ]
-        set fraction fraction / 2 
-      ]
-      set previous [who] of closest
-      set nextTemp who
-      ask closest [set next nextTemp]
+        if flag1 = false [
+          set previous1 [who] of closest
+          set nextTemp who
+          ask closest [set next1 nextTemp]
+        ]
+        if flag2 = false [
+          set previous2 [who] of closest
+          set nextTemp who
+          ask closest [set next2 nextTemp]
+        ]
+        if flag3 = false [
+          set previous3 [who] of closest
+          set nextTemp who
+          ask closest [set next3 nextTemp]
+        ]
       ]
     ]
-  ask points [die]
+    ask points [die]
+  ]
+  [
+    ifelse input = 2
+    [
+    ask points
+    [
+      set closest (min-one-of nodes2 [distance myself])
+    ]
+    ask closest 
+    [
+      hatch 1 [
+        face point step
+        forward 1
+        set fraction 1
+        while [ fraction > 1 / 16 ] [
+            if pcolor = red [
+            face closest
+            forward fraction / 2
+            ifelse pcolor = red 
+            [
+              face closest
+              forward fraction / 2
+            ]
+            [
+              face point step
+              forward fraction / 4
+            ]
+          ]
+          set fraction fraction / 2 
+        ]
+        if flag4 = false [
+          set previous1 [who] of closest
+          set nextTemp who
+          ask closest [set next1 nextTemp]
+        ]
+        if flag5 = false [
+          set previous2 [who] of closest
+          set nextTemp who
+          ask closest [set next2 nextTemp]
+        ]
+        if flag6 = false [
+          set previous3 [who] of closest
+          set nextTemp who
+          ask closest [set next3 nextTemp]
+        ]
+      ]
+    ]
+    ask points [die]
+  ]
+  [
+    ask points
+    [
+     set closest (min-one-of nodes3 [distance myself])
+    ]
+    ask closest 
+    [
+      hatch 1 [
+        face point step
+        forward 1
+        set fraction 1
+        while [ fraction > 1 / 16 ] [
+            if pcolor = red [
+            face closest
+            forward fraction / 2
+            ifelse pcolor = red 
+            [
+              face closest
+              forward fraction / 2
+            ]
+            [
+              face point step
+              forward fraction / 4
+            ]
+          ]
+          set fraction fraction / 2 
+        ]
+        if flag7 = false [
+          set previous1 [who] of closest
+          set nextTemp who
+          ask closest [set next1 nextTemp]
+        ]
+        if flag8 = false [
+          set previous2 [who] of closest
+          set nextTemp who
+          ask closest [set next2 nextTemp]
+        ]
+        if flag9 = false [
+          set previous3 [who] of closest
+          set nextTemp who
+          ask closest [set next3 nextTemp]
+        ]
+      ]
+    ]
+    ask points [die]
+  ]
+  ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -350,8 +802,8 @@ SLIDER
 number
 number
 0
-100
-1
+3
+3
 1
 1
 NIL

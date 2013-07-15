@@ -1,4 +1,6 @@
-globals [input simulation-ended sim1-ended sim2-ended sim3-ended flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 end-node1 end-node2 end-node3 end-node4 end-node5 end-node6 end-node7 end-node8 end-node9 fraction pruning-start node-xcor node-ycor y1 closest step nextTemp previous-num num start-node end-node index step-num step-max dist]
+globals [input simulation-ended sim1-ended sim2-ended sim3-ended flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 end-node1 end-node2 
+  end-node3 end-node4 end-node5 end-node6 end-node7 end-node8 end-node9 fraction pruning-start node-xcor node-ycor y1 closest step nextTemp 
+  previous-num num start-node end-node index step-num step-max dist list1 list2 list3 list4 list5 list6 list7 list8 list9 temp-list leng]
 turtles-own [energy]
 
 breed [targets target]
@@ -22,6 +24,10 @@ to setup
   setup-obstacles
   setup-boats-and-nodes
   setup-targets
+  set list1[] set list2[] set list3[]
+  set list4[] set list5[] set list6[]
+  set list7[] set list8[] set list9[]
+  set temp-list[]
   ;setup-nodes
   reset-ticks
   set step (number * 3)
@@ -30,7 +36,21 @@ end
 
 to setup-obstacles
   ask patches [
-    if (pxcor < 15) and (pxcor > -20) and (pycor > -5) and (pycor < 5)
+    if (pxcor < 5) and (pxcor > -20) and (pycor > 2) and (pycor < 6)
+    [ set pcolor red ]
+    if (pxcor < 20) and (pxcor > 3) and (pycor > -6) and (pycor < -2)
+    [ set pcolor red ]
+    if (pxcor < -5) and (pxcor > -20) and (pycor > -12) and (pycor < -8)
+    [ set pcolor red ]
+    if (pxcor < 13) and (pxcor > 3) and (pycor > -12) and (pycor < -8)
+    [ set pcolor red ]
+    if (pxcor < -17.5) and (pxcor > -20) and (pycor > -20) and (pycor < 20)
+    [ set pcolor red ]
+    if (pxcor < 20) and (pxcor > 17.5) and (pycor > -20) and (pycor < 20)
+    [ set pcolor red ]
+    if (pxcor < 12) and (pxcor > 7.5) and (pycor > 15) and (pycor < 20)
+    [ set pcolor red ]
+    if (pxcor < -3) and (pxcor > -8) and (pycor > 9) and (pycor < 14)
     [ set pcolor red ]
   ]
 end
@@ -163,14 +183,27 @@ to go
     path-pruning1
     path-pruning2
     path-pruning3
-    kill-nodes1
+    ;pruning
+    ;kill-nodes1
     path-pruning4
     path-pruning5
     path-pruning6
-    kill-nodes2
+    ;kill-nodes2
     path-pruning7
     path-pruning8
     path-pruning9
+    ;kill-nodes3
+    pruning1
+    pruning2
+    pruning3
+    pruning4
+    pruning5
+    pruning6
+    pruning7
+    pruning8
+    pruning9
+    kill-nodes1
+    kill-nodes2
     kill-nodes3
     stop
   ]
@@ -201,6 +234,7 @@ to check-destination-reached
             ;set color cyan
             set nextTemp num
             set num previous1
+            set list1 fput nextTemp list1
           ]
         ]
         set flag1 true
@@ -224,6 +258,7 @@ to check-destination-reached
             ;set color cyan
             set nextTemp num
             set num previous2
+            set list2 fput nextTemp list2
           ]
         ]
         set flag2 true
@@ -247,6 +282,7 @@ to check-destination-reached
             ;set color cyan
             set nextTemp num
             set num previous3
+            set list3 fput nextTemp list3
           ]
         ]
         set flag3 true
@@ -287,6 +323,7 @@ to check-destination-reached
               ;set color pink
               set nextTemp num
               set num previous1
+              set list4 fput nextTemp list4
             ]
           ]
           set flag4 true
@@ -310,6 +347,7 @@ to check-destination-reached
               ;set color pink
               set nextTemp num
               set num previous2
+              set list5 fput nextTemp list5
             ]
           ]
           set flag5 true
@@ -333,6 +371,7 @@ to check-destination-reached
               ;set color pink
               set nextTemp num
               set num previous3
+              set list6 fput nextTemp list6
             ]
           ]
           set flag6 true
@@ -371,6 +410,7 @@ to check-destination-reached
               ;set color green
               set nextTemp num
               set num previous1
+              set list7 fput nextTemp list7
             ]
           ]
           set flag7 true
@@ -394,6 +434,7 @@ to check-destination-reached
               ;set color green
               set nextTemp num
               set num previous2
+              set list8 fput nextTemp list8
             ]
           ]
           set flag8 true
@@ -417,6 +458,7 @@ to check-destination-reached
               ;set color green
               set nextTemp num
               set num previous3
+              set list9 fput nextTemp list9
             ]
           ]
           set flag9 true
@@ -537,7 +579,7 @@ to path-pruning1
       set color cyan
     ]
   ;]
-
+;pruningsss
 end
 
 
@@ -1383,6 +1425,231 @@ to check-distances
   ]
   ]
 
+end
+
+to pruning1
+  set temp-list list1
+foreach list1             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node1 start-node[
+              set dist distance node1 end-node
+              hatch 1
+              set color cyan
+              pen-down
+              face node1 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning2
+  set temp-list list2
+foreach list2             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node1 start-node[
+              set dist distance node1 end-node
+              hatch 1
+              set color cyan
+              pen-down
+              face node1 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning3
+  set temp-list list3
+foreach list3             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node1 start-node[
+              set dist distance node1 end-node
+              hatch 1
+              set color cyan
+              pen-down
+              face node1 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning4
+  set temp-list list4
+foreach list4             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node2 start-node[
+              set dist distance node2 end-node
+              hatch 1
+              set color pink
+              pen-down
+              face node2 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning5
+  set temp-list list5
+foreach list5             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node2 start-node[
+              set dist distance node2 end-node
+              hatch 1
+              set color pink
+              pen-down
+              face node2 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning6
+  set temp-list list6
+foreach list6             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node2 start-node[
+              set dist distance node2 end-node
+              hatch 1
+              set color pink
+              pen-down
+              face node2 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning7
+  set temp-list list7
+foreach list7             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node3 start-node[
+              set dist distance node3 end-node
+              hatch 1
+              set color green
+              pen-down
+              face node3 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning8
+  set temp-list list8
+foreach list8             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node3 start-node[
+              set dist distance node3 end-node
+              hatch 1
+              set color green
+              pen-down
+              face node3 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
+end
+
+to pruning9
+  set temp-list list9
+foreach list9             
+    [
+     set start-node ?
+     set leng length temp-list  
+          ifelse (leng = 1) 
+          [                  
+          ]
+          [
+            set temp-list (but-first temp-list)
+            set end-node first (temp-list)  
+            ask node3 start-node[
+              set dist distance node3 end-node
+              hatch 1
+              set color green
+              pen-down
+              face node3 end-node
+              forward dist
+              ;die
+              ]
+    ]
+    ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW

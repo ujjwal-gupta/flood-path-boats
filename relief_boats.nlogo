@@ -1,4 +1,4 @@
-globals [simulation-ended pruning-start node-xcor node-ycor x1 y1 closest step nextTemp num start-node end-node index step-num step-max dist]
+globals [simulation-ended fraction pruning-start node-xcor node-ycor x1 y1 closest step nextTemp num start-node end-node index step-num step-max dist]
 turtles-own [energy]
 
 breed [targets target]
@@ -52,8 +52,24 @@ to setup-targets
 end
 
 
+to draw-obstacles
+  ask patches [
+    if (pxcor < 15) and (pxcor > -20) and (pycor > -5) and (pycor < 5)
+    [ set pcolor blue ]
+;    if (pxcor > 5) and (pycor < -5)
+;    [ set pcolor blue ]
+;    if (pxcor < -5) and (pycor > 5) and (pycor < 8)
+;    [ set pcolor blue ]
+;    if (pxcor < -3) and (pycor > -24) and (pycor < 2)
+;    [ set pcolor blue ]
+;    if (pxcor > 2) and (pycor > 3) and (pycor < 12)
+;    [ set pcolor blue ]
+    ]
+end
+
 
 to go
+  draw-obstacles
   check-destination-reached
   
   choose-point
@@ -92,6 +108,13 @@ end
 to path-pruning
   ;if pruning-start = true
   ;[
+    ask nodes [ pen-up]
+    ask nodes [ if color = red
+      [
+        die
+      ]
+    ]
+    ask nodes [ set color red]
     set start-node  2 
     set step-num 0
     set step-max 1 
@@ -114,15 +137,51 @@ to path-pruning
           [
             forward 1
             set index index + 1 
-          ; check for obstacle using your algo
-          ; if obstacle there "ask node start-node [ set start-node next]" then start again
+            if pcolor = blue [
+              ask node end-node [ set end-node previous]
+              ask node end-node [
+                set previous start-node
+                set color green]
+              ask node start-node [
+              set next end-node
+              set color green
+               hatch 1 [
+                 pen-down
+                 face node end-node
+                 set dist distance node end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+             ;continue from line while [end-node < step - 1]
+           ]
+          
           ]
           set step-max step-max + 1
+          die
           ]
       ]
     ]     
-    ask node start-node [ set next end-node]
-    ask node end-node [set previous start-node]
+    ask node start-node [ 
+      set next end-node
+      set color green
+      hatch 1 [
+        pen-down
+        face node end-node
+        set dist distance node end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node end-node [
+      set previous start-node
+      set color green
+      ]
   ;]
 
 end
@@ -145,6 +204,23 @@ to check-distances
     hatch 1 [
       face point step
       forward 1
+      set fraction 1
+      while [ fraction > 1 / 16 ] [
+          if pcolor = blue [
+          face closest
+          forward fraction / 2
+          ifelse pcolor = blue 
+          [
+            face closest
+            forward fraction / 2
+          ]
+          [
+            face point step
+            forward fraction / 4
+          ]
+        ]
+        set fraction fraction / 2 
+      ]
       set previous [who] of closest
       set nextTemp who
       ask closest [set next nextTemp]

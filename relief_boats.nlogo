@@ -160,15 +160,18 @@ to go
   ]  
   ifelse simulation-ended = true
   [
-     path-pruning1
-     path-pruning2
-     path-pruning3
-;    path-pruning4
-;    path-pruning5
-;    path-pruning6
-;    path-pruning7
-;    path-pruning8
-;    path-pruning9
+    path-pruning1
+    path-pruning2
+    path-pruning3
+    kill-nodes1
+    path-pruning4
+    path-pruning5
+    path-pruning6
+    kill-nodes2
+    path-pruning7
+    path-pruning8
+    path-pruning9
+    kill-nodes3
     stop
   ]
   [
@@ -274,6 +277,7 @@ to check-destination-reached
         ask nodes2 in-radius 1.5 
         [
           set num step - 1
+          set end-node4 num
           ask node2 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -296,6 +300,7 @@ to check-destination-reached
         ask nodes2 in-radius 1.5 
         [
           set num step - 1
+          set end-node5 num
           ask node2 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -318,6 +323,7 @@ to check-destination-reached
         ask nodes2 in-radius 1.5 
         [
           set num step - 1
+          set end-node6 num
           ask node2 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -355,6 +361,7 @@ to check-destination-reached
         ask nodes3 in-radius 1.5 
         [
           set num step - 1
+          set end-node7 num
           ask node3 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -377,6 +384,7 @@ to check-destination-reached
         ask nodes3 in-radius 1.5 
         [
           set num step - 1
+          set end-node8 num
           ask node3 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -399,6 +407,7 @@ to check-destination-reached
         ask nodes3 in-radius 1.5 
         [
           set num step - 1
+          set end-node9 num
           ask node3 num [set nextTemp who] 
           while [num > 1]
           [ 
@@ -698,6 +707,529 @@ to path-pruning3
 end
 
 
+to path-pruning4
+;  clear-all
+  ask nodes2 [ pen-up]
+;  clear-drawing
+;    ask nodes2 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 4
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node4][ 
+      ask node2 start-node [
+        set end-node next1
+        while [step-num < step-max]
+        [
+          ask node2 end-node [set end-node next1]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node2 start-node[
+        hatch 1 [
+          face node2 end-node
+          set index 0
+          ask node2 start-node [ set dist distance node2 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node2 end-node [ set end-node previous1]
+              ask node2 end-node [
+                set previous1 start-node
+                set color pink]
+              ask node2 start-node [
+              set next1 end-node
+              set color pink
+               hatch 1 [
+                 pen-down
+                 face node2 end-node
+                 set dist distance node2 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node2 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node2 start-node [ 
+      set next1 end-node
+      set color pink
+      hatch 1 [
+        pen-down
+        face node2 end-node
+        set dist distance node2 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node2 end-node [
+      set previous1 start-node
+      set color pink
+    ]
+  ;]
+
+end
+
+
+to path-pruning5
+;  clear-all
+  ask nodes2 [ pen-up]
+;  clear-drawing
+;    ask nodes2 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 4 
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node5][ 
+      ask node2 start-node [
+        set end-node next2
+        while [step-num < step-max]
+        [
+          ask node2 end-node [set end-node next2]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node2 start-node[
+        hatch 1 [
+          face node2 end-node
+          set index 0
+          ask node2 start-node [ set dist distance node2 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node2 end-node [ set end-node previous2]
+              ask node2 end-node [
+                set previous2 start-node
+                set color pink]
+              ask node2 start-node [
+              set next2 end-node
+              set color pink
+               hatch 1 [
+                 pen-down
+                 face node2 end-node
+                 set dist distance node2 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node2 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node2 start-node [ 
+      set next2 end-node
+      set color pink
+      hatch 1 [
+        pen-down
+        face node2 end-node
+        set dist distance node2 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node2 end-node [
+      set previous2 start-node
+      set color pink
+    ]
+  ;]
+
+end
+
+
+to path-pruning6
+;  clear-all
+  ask nodes2 [ pen-up]
+;  clear-drawing
+;    ask nodes2 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 4 
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node6][ 
+      ask node2 start-node [
+        set end-node next3
+        while [step-num < step-max]
+        [
+          ask node2 end-node [set end-node next3]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node2 start-node[
+        hatch 1 [
+          face node2 end-node
+          set index 0
+          ask node2 start-node [ set dist distance node2 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node2 end-node [ set end-node previous3]
+              ask node2 end-node [
+                set previous3 start-node
+                set color pink]
+              ask node2 start-node [
+              set next3 end-node
+              set color pink
+               hatch 1 [
+                 pen-down
+                 face node2 end-node
+                 set dist distance node2 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node2 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node2 start-node [ 
+      set next3 end-node
+      set color pink
+      hatch 1 [
+        pen-down
+        face node2 end-node
+        set dist distance node2 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node2 end-node [
+      set previous3 start-node
+      set color pink
+    ]
+  ;]
+
+end
+
+
+to path-pruning7
+;  clear-all
+  ask nodes3 [ pen-up]
+;  clear-drawing
+;    ask nodes3 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 5
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node7][ 
+      ask node3 start-node [
+        set end-node next1
+        while [step-num < step-max]
+        [
+          ask node3 end-node [set end-node next1]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node3 start-node[
+        hatch 1 [
+          face node3 end-node
+          set index 0
+          ask node3 start-node [ set dist distance node3 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node3 end-node [ set end-node previous1]
+              ask node3 end-node [
+                set previous1 start-node
+                set color green]
+              ask node3 start-node [
+              set next1 end-node
+              set color green
+               hatch 1 [
+                 pen-down
+                 face node3 end-node
+                 set dist distance node3 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node3 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node3 start-node [ 
+      set next1 end-node
+      set color green
+      hatch 1 [
+        pen-down
+        face node3 end-node
+        set dist distance node3 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node3 end-node [
+      set previous1 start-node
+      set color green
+    ]
+  ;]
+
+end
+
+
+to path-pruning8
+;  clear-all
+  ask nodes3 [ pen-up]
+;  clear-drawing
+;    ask nodes3 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 5 
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node8][ 
+      ask node3 start-node [
+        set end-node next2
+        while [step-num < step-max]
+        [
+          ask node3 end-node [set end-node next2]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node3 start-node[
+        hatch 1 [
+          face node3 end-node
+          set index 0
+          ask node3 start-node [ set dist distance node3 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node3 end-node [ set end-node previous2]
+              ask node3 end-node [
+                set previous2 start-node
+                set color green]
+              ask node3 start-node [
+              set next2 end-node
+              set color green
+               hatch 1 [
+                 pen-down
+                 face node3 end-node
+                 set dist distance node3 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node3 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node3 start-node [ 
+      set next2 end-node
+      set color green
+      hatch 1 [
+        pen-down
+        face node3 end-node
+        set dist distance node3 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node3 end-node [
+      set previous2 start-node
+      set color green
+    ]
+  ;]
+
+end
+
+
+to path-pruning9
+;  clear-all
+  ask nodes3 [ pen-up]
+;  clear-drawing
+;    ask nodes3 [ if color = blue
+;      [
+;        die
+;      ]
+;    ]
+;    ask nodes [ set color red]
+    set start-node 5 
+    set end-node 0
+    set step-num 0
+    set step-max 1 
+    while [end-node < end-node9][ 
+      ask node3 start-node [
+        set end-node next3
+        while [step-num < step-max]
+        [
+          ask node3 end-node [set end-node next3]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      show end-node
+      ask node3 start-node[
+        hatch 1 [
+          face node3 end-node
+          set index 0
+          ask node3 start-node [ set dist distance node3 end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+            if pcolor = red [
+              ask node3 end-node [ set end-node previous3]
+              ask node3 end-node [
+                set previous3 start-node
+                set color green]
+              ask node3 start-node [
+              set next3 end-node
+              set color green
+               hatch 1 [
+                 pen-down
+                 face node3 end-node
+                 set dist distance node3 end-node
+                 forward dist
+                 pen-up
+                 die
+               ]
+             ]
+             ask node3 end-node [set start-node end-node]
+             set step-max 0
+             set index dist        
+           ]
+          
+          ]
+          set step-max step-max + 1
+          die
+          ]
+      ]
+    ]     
+    ask node3 start-node [ 
+      set next3 end-node
+      set color green
+      hatch 1 [
+        pen-down
+        face node3 end-node
+        set dist distance node3 end-node
+        forward dist
+        pen-up
+        die
+      ]
+    ]
+    ask node3 end-node [
+      set previous3 start-node
+      set color green
+    ]
+  ;]
+
+end
+
+
+to kill-nodes1
+  ask nodes1 [ if color = blue
+    [
+      die
+    ]
+  ]
+end
+
+
+to kill-nodes2
+  ask nodes2 [ if color = magenta
+    [
+      die
+    ]
+  ]
+end
+
+
+to kill-nodes3
+  ask nodes3 [ if color = turquoise
+    [
+      die
+    ]
+  ]
+end
 
 
 to choose-point

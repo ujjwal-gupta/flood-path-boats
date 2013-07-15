@@ -1,5 +1,4 @@
-globals [simulation-ended node-xcor node-ycor i index minimum x1 y1 closest step abc flag flag1 flagcons mycolorend mycolormid constant startx starty midx midy distances xpart ypart whole newx newy nextTemp num]  ;ADDED FLAG1
-
+globals [simulation-ended pruning-start node-xcor node-ycor x1 y1 closest step nextTemp num start-node end-node index step-num step-max dist]
 turtles-own [energy]
 
 breed [targets target]
@@ -12,19 +11,12 @@ nodes-own [previous next]
 
 to setup
   clear-all
-  ;;setup-patches
   setup-boats
   setup-targets
   setup-nodes
   reset-ticks
   set step 3
 end
-
-
-to setup-patches
-  ;;ask patches [set pcolor green]
-end
-
 
 to setup-boats
   create-boats number 
@@ -42,7 +34,7 @@ to setup-nodes
     set color red
     set shape "circle"
     set size 0.3
-    setxy 0 -19         
+    setxy 0 -19
     pen-down]
   set node-xcor [0]
   set node-ycor [-19]
@@ -60,29 +52,15 @@ to setup-targets
 end
 
 
-to draw-obstacles
-  ask patches [
-    if (pxcor > 5) and (pycor < -5)
-    [ set pcolor blue ]
-    if (pxcor < -5) and (pycor > 5) and (pycor < 8)
-    [ set pcolor blue ]
-;    if (pxcor < -3) and (pycor > -24) and (pycor < 2)
-;    [ set pcolor blue ]
-    if (pxcor > 2) and (pycor > 3) and (pycor < 12)
-    [ set pcolor blue ]
-    ]
-end
-
 
 to go
-  ;;if ticks >= 500 [stop]
-  draw-obstacles
   check-destination-reached
+  
   choose-point
   check-distances
-  
   ifelse simulation-ended = true
   [
+    path-pruning
     stop
   ]
   [
@@ -95,201 +73,84 @@ to check-destination-reached
   ask targets [
     ask nodes in-radius 1.5 [
       set num step - 1
+      ask node num [set nextTemp who] 
       while [num > 1]
       [ ask node num [
+          set next nextTemp
           set color green
+          set nextTemp num
           set num previous
           ]
       ]
+      ;set pruning-start true
       ; move-boat
       set simulation-ended true
     ]
   ]
 end
+  
+to path-pruning
+  ;if pruning-start = true
+  ;[
+    set start-node  2 
+    set step-num 0
+    set step-max 1 
+    while [end-node < step - 1][ 
+      ask node start-node [
+        set end-node next
+        while [step-num < step-max]
+        [
+          ask node end-node [set end-node next]
+          set step-num step-num + 1
+        ]
+        set step-num 0 
+      ]
+      ask node start-node[
+        hatch 1 [
+          face node end-node
+          set index 0
+          ask node start-node [ set dist distance node end-node]
+          while [index < dist - 1]
+          [
+            forward 1
+            set index index + 1 
+          ; check for obstacle using your algo
+          ; if obstacle there "ask node start-node [ set start-node next]" then start again
+          ]
+          set step-max step-max + 1
+          ]
+      ]
+    ]     
+    ask node start-node [ set next end-node]
+    ask node end-node [set previous start-node]
+  ;]
 
+end
 
 to choose-point
   create-points 1
   ask points [setxy 20 - random 41 20 - random 41]
+ 
+      set x1 [ xcor ] of  points                   ;;;; my addition also added them in the global
+      set y1 [ ycor ] of  points                  ;;;; my addition
 end
 
 to check-distances
-  ;set i 2
-  set minimum 100
-  set index 0
-  set flag 0   ; flag is set 0 so that it enters the loop at least once
-  set flag1 0
+
+  ask points[
+  set closest (min-one-of nodes [distance myself])
+  ]
   
-  ask points[ 
-    ;set abc  (min-one-of nodes [distance myself])
-    set closest (min-one-of nodes [distance myself])
-    set startx [ xcor ] of  closest                   
-    set starty [ ycor ] of  closest 
-    ;show closest
-   ]
-  
- 
   ask closest [
-   ; to avoid-patches
-   set constant 2
-;    hatch 1
-;   face point step
-;    forward constant
-    set x1 [ xcor ] of  closest                   
-    set y1 [ ycor ] of  closest
-;    pen-down
-;    
-    set midx (x1 + startx)/ 2     ;finding the coordinates of the midpoint of the path formed by the node and the starting node at time t = 0 
-    set midy (y1 + starty)/ 2     ; 
-;    
-    set mycolorend [pcolor] of patch x1 y1     ;saving the color of the midpoint corodinate to a variable 
-    set mycolormid [pcolor] of patch midx midy ;so that we can check whether they are in obstacle or not
-    ;set mycolorstart[pcolor] of patch startx starty
-    
-    while [flag <= 14 ]
-    [
-      ifelse (mycolorend >= 101 and mycolorend <= 109)     ; checking if endpoint is in obstacle or not
-      [
-        ifelse (mycolormid >= 101 and mycolormid <= 109)  ; checking if midway point is in obstacle or not
-        [
-          set x1 midx   ;if midpoint and endpoint both in obstacle then we are setting the end point coordinate to values of midpoint
-          set y1 midy   ;as later half is in obstacle, now we need to check whether the first half is in obstacle or not
-          
-          set midx ((x1 + startx)/ 2)     ;as endpoint has been changed so new midpoint will form 
-          set midy ((y1 + starty)/ 2)    
-       
-          set mycolorend [pcolor] of patch x1 y1     ;saving the color of the midpoint corodinate to a variable 
-          set mycolormid [pcolor] of patch midx midy ;so that we can check whether they are in obstacle or not 
-          
-          set flag flag + 1
-          set flag1 1
-          
-          ;ADDED ABOVE 3 LINES
-        ]
-        [
-          ;set startx midx       ; else if only endpoint is in obstacle then we need to change the starting coordinate
-          ;set starty midy       ; so that we can check till where in the latter half should we move the node
-       
-          set x1 ((x1 + midx)/ 2)
-          set y1 ((y1 + midy)/ 2)
-          
-          set newx x1
-          set newy y1
-          
-          ;set midx ((x1 + startx)/ 2)     ;finding the new midpoint as the starting point has changed 
-          ;set midy ((y1 + starty)/ 2)
-       
-          set mycolorend [pcolor] of patch x1 y1     ;saving the color of the midpoint corodinate to a variable 
-         ; set mycolormid [pcolor] of patch midx midy ;so that we can check whether they are in obstacle or not
-          if (mycolorend >= 101 and mycolorend <= 109)
-          [
-            set x1 ((x1 + midx)/ 2 );newx1
-            set y1 ((y1 + midy)/ 2 );newy1 
-            
-            set mycolorend [pcolor] of patch x1 y1
-           ]
-          set flag flag + 1
-          set flag1 1
-          
-;          [
-;            set midx x1
-;            set midy y1
-;            set mycolormid [pcolor] of patch midx midy
-;          ]
-          ;ADDED ABOVE 3 LINES
-        ]
-      ]
-    
-      [
-        set flag 25   ; both midpoint and end point are not in obstacle
-                     ;show flag  
-      ]
-    ]
-    set xpart ((x1 - startx) * (x1 - startx))   ; finding the distance till which the node should be moved
-    set ypart ((y1 - starty) * (y1 - starty))   ; distance = sqrt ( (endx - startx)^2 + (endy - starty)^2)
-    set whole (xpart + ypart)
-    set distances 0
-    set distances sqrt(whole)
-   ; show distances
-    
-    ifelse (flag = 25 and flag1 = 0)   ; ADDED FLAG1 = 0
-    [
-      hatch 1[
+    hatch 1 [
       face point step
-      forward constant
+      forward 1
       set previous [who] of closest
       set nextTemp who
       ask closest [set next nextTemp]
-     set distances 0
-     ]
-    ]
-    [
-      hatch 1[
-      face point step
-      forward distances
-      set previous [who] of closest
-      set nextTemp who
-      ask closest [set next nextTemp]
-      set distances 0
       ]
-      
     ]
-    ; set startx [ xcor ] of  closest                   
-     ;set starty [ ycor ] of  closest
-     
-    ; set x1 [ xcor ] of  closest                   
-     ;set y1 [ ycor ] of  closest
-      ]
   ask points [die]
-end
-  
-; to avoid-patches 
-  
-
-to move-boats
-  ask boats [
-    right random 360
-    forward 1
-    
-  ]
-end
-
-; ---------------------------------------------------------------------------------
-; Ignore rest
-; ---------------------------------------------------------------------------------
-to eat-grass
-  ask turtles [
-    if pcolor = green [
-      set pcolor black
-      set energy energy + 10
-    ]
-  ifelse show-energy?
-    [set label energy]
-    [set label ""]
-  ]
-end
-
-
-to reproduce
-  ask turtles [
-    if energy > 50 [
-      set energy energy - 50
-      hatch 1 [set energy 50]
-    ]
-  ]
-end
-
-
-to check-death
-  ask turtles [
-    if energy <= 0 [die]
-  ]
-end
-
-to regrow-grass
-  ask patches [
-    if random 100 < 3 [set pcolor green]
-  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
